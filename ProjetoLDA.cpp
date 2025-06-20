@@ -11,6 +11,16 @@
 
 using namespace std;
 
+// === DEFINIÇÕES AJUSTÁVEIS PELO USUÁRIO ===
+#define TRAIN_RATIO 0.8
+#define LAMBDA_REGULARIZATION 1e-4
+#define MODEL_FILE "lda_model.txt"
+#define LOAD_MODEL false
+#define INPUT_FILE "alzheimer_data.csv"
+#define NEW_PATIENTS_FILE "novos_pacientes.csv"
+#define OUTPUT_FILE "saida.csv"
+// ===========================================
+
 void read_csv(const string &filename, vector<vector<double>> &X, vector<int> &y)
 {
     ifstream file(filename);
@@ -71,8 +81,7 @@ void read_csv(const string &filename, vector<vector<double>> &X, vector<int> &y)
 vector<vector<double>> read_new_patients(const string &filename)
 {
     ifstream file(filename);
-    if (!file.is_open())
-        return {};
+    if (!file.is_open()) return {};
     string line;
     getline(file, line); // cabeçalho
 
@@ -86,19 +95,9 @@ vector<vector<double>> read_new_patients(const string &filename)
 
         while (getline(ss, cell, ','))
         {
-            if (col_index == 0)
-            {
-                col_index++;
-                continue;
-            } // pula ID
-            try
-            {
-                row.push_back(stod(cell));
-            }
-            catch (...)
-            {
-                row.push_back(0.0);
-            }
+            if (col_index == 0) { col_index++; continue; }
+            try { row.push_back(stod(cell)); }
+            catch (...) { row.push_back(0.0); }
             col_index++;
         }
         new_data.push_back(row);
@@ -210,10 +209,8 @@ void train_lda(const vector<vector<double>> &X, const vector<int> &y, vector<dou
     vector<vector<double>> X0, X1;
     for (size_t i = 0; i < y.size(); ++i)
     {
-        if (y[i] == 0)
-            X0.push_back(X[i]);
-        else
-            X1.push_back(X[i]);
+        if (y[i] == 0) X0.push_back(X[i]);
+        else X1.push_back(X[i]);
     }
 
     auto mean0 = compute_mean(X0), mean1 = compute_mean(X1);
@@ -225,13 +222,11 @@ void train_lda(const vector<vector<double>> &X, const vector<int> &y, vector<dou
         for (int j = 0; j < d; ++j)
             Sw[i][j] = cov0[i][j] + cov1[i][j];
 
-    double lambda = 1e-4;
     for (int i = 0; i < d; ++i)
-        Sw[i][i] += lambda;
+        Sw[i][i] += LAMBDA_REGULARIZATION;
 
     auto Sw_inv = invert_matrix(Sw);
-    if (Sw_inv.empty())
-        return;
+    if (Sw_inv.empty()) return;
 
     vector<double> mean_diff(d);
     for (int i = 0; i < d; ++i)
@@ -252,14 +247,10 @@ void evaluate_model(const vector<int> &y_true, const vector<int> &y_pred)
 
     for (size_t i = 0; i < y_true.size(); ++i)
     {
-        if (y_true[i] == 1 && y_pred[i] == 1)
-            TP++;
-        else if (y_true[i] == 0 && y_pred[i] == 0)
-            TN++;
-        else if (y_true[i] == 0 && y_pred[i] == 1)
-            FP++;
-        else if (y_true[i] == 1 && y_pred[i] == 0)
-            FN++;
+        if (y_true[i] == 1 && y_pred[i] == 1) TP++;
+        else if (y_true[i] == 0 && y_pred[i] == 0) TN++;
+        else if (y_true[i] == 0 && y_pred[i] == 1) FP++;
+        else if (y_true[i] == 1 && y_pred[i] == 0) FN++;
     }
 
     double accuracy = static_cast<double>(TP + TN) / y_true.size();
@@ -272,7 +263,6 @@ void evaluate_model(const vector<int> &y_true, const vector<int> &y_pred)
     cout << "Matriz de Confusão:\n";
     cout << "TP: " << TP << "  FP: " << FP << "\n";
     cout << "FN: " << FN << "  TN: " << TN << "\n";
-
     cout << "Acurácia:        " << accuracy << endl;
     cout << "Erro de previsão:" << error_rate << endl;
     cout << "Precisão:        " << precision << endl;
@@ -293,15 +283,12 @@ public:
         vector<vector<double>> X0, X1;
         for (size_t i = 0; i < y.size(); ++i)
         {
-            if (y[i] == 0)
-                X0.push_back(X[i]);
-            else
-                X1.push_back(X[i]);
+            if (y[i] == 0) X0.push_back(X[i]);
+            else X1.push_back(X[i]);
         }
 
         auto mean0 = compute_mean(X0), mean1 = compute_mean(X1);
-        means = mean0; // só por guardar
-
+        means = mean0;
         auto cov0 = compute_covariance(X0, mean0), cov1 = compute_covariance(X1, mean1);
 
         int d = mean0.size();
@@ -310,13 +297,11 @@ public:
             for (int j = 0; j < d; ++j)
                 Sw[i][j] = cov0[i][j] + cov1[i][j];
 
-        double lambda = 1e-4;
         for (int i = 0; i < d; ++i)
-            Sw[i][i] += lambda;
+            Sw[i][i] += LAMBDA_REGULARIZATION;
 
         auto Sw_inv = invert_matrix(Sw);
-        if (Sw_inv.empty())
-            return;
+        if (Sw_inv.empty()) return;
 
         vector<double> mean_diff(d);
         for (int i = 0; i < d; ++i)
@@ -341,20 +326,17 @@ public:
         }
 
         file << means.size() << "\n";
-        for (const auto &mean : means)
-            file << mean << " ";
+        for (const auto &mean : means) file << mean << " ";
         file << "\n";
 
         file << coef.size() << "\n";
-        for (const auto &c : coef)
-            file << c << " ";
+        for (const auto &c : coef) file << c << " ";
         file << "\n";
 
         file << intercept << "\n";
 
         file << prior_probs.size() << "\n";
-        for (const auto &p : prior_probs)
-            file << p << " ";
+        for (const auto &p : prior_probs) file << p << " ";
         file << "\n";
 
         file.close();
@@ -396,7 +378,7 @@ int main()
 {
     vector<vector<double>> X;
     vector<int> y;
-    read_csv("alzheimer_data.csv", X, y);
+    read_csv(INPUT_FILE, X, y);
 
     vector<int> indices(X.size());
     iota(indices.begin(), indices.end(), 0);
@@ -405,7 +387,7 @@ int main()
 
     vector<vector<double>> X_train, X_test;
     vector<int> y_train, y_test;
-    size_t split_idx = static_cast<size_t>(0.8 * X.size());
+    size_t split_idx = static_cast<size_t>(TRAIN_RATIO * X.size());
     for (size_t i = 0; i < X.size(); ++i)
     {
         if (i < split_idx)
@@ -421,34 +403,32 @@ int main()
     }
 
     LinearDiscriminantAnalysis lda;
-    string model_file = "lda_model.txt";
-    bool carregar = false; // altere se quiser carregar modelo treinado
 
-    if (carregar)
+    if (LOAD_MODEL)
     {
-        lda.load_model(model_file);
+        lda.load_model(MODEL_FILE);
     }
     else
     {
         lda.fit(X_train, y_train);
-        lda.save_model(model_file);
+        lda.save_model(MODEL_FILE);
     }
+
     vector<double> w;
     double threshold;
     train_lda(X_train, y_train, w, threshold);
 
     vector<int> y_pred;
-    for (size_t i = 0; i < X_test.size(); ++i)
-    {
-        y_pred.push_back(predict(X_test[i], w, threshold));
-    }
+    for (const auto &x : X_test)
+        y_pred.push_back(predict(x, w, threshold));
+
     evaluate_model(y_test, y_pred);
 
-    auto new_patients = read_new_patients("novos_pacientes.csv");
+    auto new_patients = read_new_patients(NEW_PATIENTS_FILE);
     vector<int> new_predictions;
     for (const auto &patient : new_patients)
         new_predictions.push_back(predict(patient, w, threshold));
 
-    save_predictions("novos_pacientes.csv", "saida.csv", new_predictions);
+    save_predictions(NEW_PATIENTS_FILE, OUTPUT_FILE, new_predictions);
     return 0;
 }
