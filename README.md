@@ -2,6 +2,16 @@
 
 This is a **single-file C++ implementation** of a Linear Discriminant Analysis (LDA) classifier for Alzheimer's disease prediction from medical data.
 
+## 🔒 Security & Privacy Notice
+
+**⚠️ IMPORTANT: This repository does NOT contain any actual patient data.**
+
+- All data files (`.csv`), model files (`.txt`), and binaries are excluded via `.gitignore`
+- See `DATA_EXAMPLE.md` for data format specifications
+- **Never commit real medical/patient data to version control**
+- Follow HIPAA/GDPR and institutional data handling policies
+- Keep all patient data on secure, encrypted local storage only
+
 ## 📌 Key Features
 
 - Pure C++ implementation (no external dependencies)
@@ -16,12 +26,14 @@ This is a **single-file C++ implementation** of a Linear Discriminant Analysis (
 ## 🛠️ How to Use
 
 1. **Prepare your data**:
-   - Training data: `alzheimer_data.csv` (450 features + label in column 451)
-   - New patients: `novos_pacientes.csv` (same 450 features)
+   - Create `alzheimer_data.csv` locally (see `DATA_EXAMPLE.md` for format)
+   - Training data: 450 features + label in column 451
+   - New patients: `novos_pacientes.csv` (same 450 features, no label)
+   - ⚠️ **Keep data files local - they are excluded from Git**
 
 2. **Compile**:
    ```bash
-   g++ -std=c++11 -O3 -o alzheimer_classifier main.cpp
+   g++ -std=c++11 -O3 -o alzheimer_classifier ProjetoLDA.cpp
    ```
 
 3. **Run**:
@@ -46,6 +58,8 @@ Edit these #defines at the top of the file:
 ```
 
 ## 📊 Data Format
+
+See `DATA_EXAMPLE.md` for detailed data format specifications and security guidelines.
 
 **Training CSV Format**:
 ```
@@ -85,6 +99,27 @@ The program outputs:
 2. First column is always treated as ID (skipped)
 3. Diagnosis column (P/H) must be last in training data
 4. Uses C++11 features
+5. **All data and model files are git-ignored for security**
+
+## 🔐 Security Best Practices
+
+1. **Data Protection**:
+   - Never commit `.csv` data files to Git
+   - Store data only on encrypted local storage
+   - Use anonymized patient IDs (no names, SSN, etc.)
+   
+2. **Model Files**:
+   - Model files (`.txt`) are excluded from Git
+   - They may contain patterns learned from sensitive data
+   
+3. **Binary Files**:
+   - Compiled executables are not tracked in Git
+   - Always compile from source code
+   
+4. **Compliance**:
+   - Follow HIPAA guidelines for medical data
+   - Comply with GDPR for EU data subjects
+   - Adhere to institutional IRB requirements
 
 ## 🚀 Next Steps
 
