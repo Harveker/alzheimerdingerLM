@@ -21,7 +21,7 @@ ID,feature1,feature2,...,feature450,class
 3,0.31,0.52,...,0.78,P
 ```
 
-- **Columns 1**: Patient ID (any unique identifier)
+- **Column 1**: Patient ID (any unique identifier)
 - **Columns 2-451**: 450 numerical features (medical measurements)
 - **Column 452**: Diagnosis label
   - `P` = Patient with condition
@@ -39,7 +39,7 @@ ID,feature1,feature2,...,feature450
 102,0.21,0.39,...,0.72
 ```
 
-- **Columns 1**: Patient ID
+- **Column 1**: Patient ID
 - **Columns 2-451**: 450 numerical features (same as training data)
 - **No label column** (this is what we're predicting)
 
