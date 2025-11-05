@@ -1,0 +1,72 @@
+# Compiled executables and binaries
+*.exe
+*.out
+*.app
+ProjetoLDA
+alzheimer_classifier
+
+# Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Data files - NEVER commit sensitive medical data
+*.csv
+alzheimer_data.csv
+novos_pacientes.csv
+saida.csv
+predictions.csv
+data.csv
+
+# Model files - may contain patterns from sensitive data
+*.txt
+lda_model.txt
+*.model
+*.pkl
+*.h5
+*.pt
+*.pth
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Debugging
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+/tmp/
+
+# Build directories
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
